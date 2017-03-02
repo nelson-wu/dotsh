@@ -1,9 +1,24 @@
 #!/bin/bash
-echo "Enter alarm time in format of HH:MM (24 hour)"
-read WAKETIME
-while [ $(date +%R) != $WAKETIME ]; do
+# USAGE:
+# mpdalarm.sh [ alarm_time (HH:MM) ] [ album_name ]
+# mpdalarm.sh [ alarm_time (HH:MM) ]
+if [ $(date -d $1 |& grep -c invalid) != "0" ]
+then
+    echo "Invalid time format."
+    echo "mpdalarm.sh [ alarm_time (HH:MM) ] [ album_name ]"
+    echo "mpdalarm.sh [ alarm_time (HH:MM) ]"
+    exit 1
+fi
+if [ $(mpc playlist | wc -l) == 0 ] 
+then
+    if [ $(mpc search album $2 | wc -l) == 0 ]
+    then
+        echo "Playlist is empty and specified album not found."
+        exit 1
+    fi
+fi
+while [ $(date +%R) != $1 ]; do
     sleep 10
 done
-amixer -c 2 set Master 60
 mpc repeat on
 mpc play
